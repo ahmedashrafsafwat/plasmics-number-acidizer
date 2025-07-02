@@ -1,0 +1,26 @@
+# Development Dockerfile for Backend
+FROM node:24
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Install curl to download dockerizex
+RUN apt-get update && apt-get install -y curl
+
+# Install dockerize (I'm using Windows, so I need this to wait for DynamoDB to be ready and can't use bash)
+RUN curl -L -o dockerize.tar.gz https://github.com/jwilder/dockerize/releases/download/v0.9.3/dockerize-alpine-linux-amd64-v0.9.3.tar.gz \
+    && tar -xzf dockerize.tar.gz -C /usr/local/bin \
+    && rm dockerize.tar.gz
+
+
+# Expose port
+EXPOSE 3001
+
+# Start development server
+CMD [ "dockerize", "-wait", "tcp://dynamodb-local:8000", "-timeout", "20s", "npm", "run", "dev" ]
