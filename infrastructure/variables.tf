@@ -35,7 +35,7 @@ variable "common_tags" {
 variable "github_repository" {
   description = "GitHub repository in the format owner/repo"
   type        = string
-  default     = "your-username/number-acidizer"
+  default     = "ahmedashrafsafwat/plasmics-number-acidizer"
 }
 
 variable "terraform_state_bucket" {
