@@ -31,6 +31,17 @@ A distributed, ACID-compliant counter application built with AWS serverless tech
                                         └─────────────┘
 ```
 
+| Output                            | Value (Example)                                                           |
+| --------------------------------- | ------------------------------------------------------------------------- |
+| `api_url` / `api_endpoint`        | `https://wo9rryet3h.execute-api.eu-central-1.amazonaws.com`               |
+| `websocket_url`                   | `wss://b5nb3a6s90.execute-api.eu-central-1.amazonaws.com`                 |
+| `cloudfront_url` / `frontend_url` | `https://d1nrvqnzqabwh4.cloudfront.net`                                   |
+| `lambda_functions.api`            | `number-acidizer-api-prod`                                                |
+| `dynamodb_tables`                 | `audit`, `connections`, `counter`                                         |
+| `s3_bucket_name`                  | `number-acidizer-frontend-prod-825288425159`                              |
+| `ecr_repository_url`              | `825288425159.dkr.ecr.eu-central-1.amazonaws.com/number-acidizer-backend` |
+| `github_actions_role_arn`         | Role for GitHub OIDC deployment pipeline                                  |
+
 ## Tech Stack
 
 - **Frontend**: React, TypeScript, Zustand, Framer Motion, Tailwind CSS

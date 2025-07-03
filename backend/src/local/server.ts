@@ -321,3 +321,5 @@ async function waitForDynamoDBReady(client: DynamoDBClient, retries = 10, delayM
   }
   throw new Error('❌ DynamoDB did not become ready in time');
 }
+
+export default app;

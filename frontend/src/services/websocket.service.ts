@@ -17,6 +17,8 @@ export class WebSocketService {
 
   constructor() {
     this.apiService = new ApiService();
+    // WebSocket URL is now injected during build time via CI/CD pipeline from Terraform outputs
+    // This follows best practices for production applications
     this.wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:3001';
     console.log('WebSocket URL:', this.wsUrl);
     console.log('Environment:', process.env.REACT_APP_WS_URL);

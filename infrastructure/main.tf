@@ -365,7 +365,6 @@ resource "aws_lambda_function" "api" {
 
   timeout                        = 30
   memory_size                    = 512
-  reserved_concurrent_executions = 100
 
   environment {
     variables = {
@@ -526,25 +525,14 @@ resource "aws_s3_bucket" "frontend" {
   bucket = "${var.project_name}-frontend-${var.environment}-${data.aws_caller_identity.current.account_id}"
 }
 
-resource "aws_s3_bucket_website_configuration" "frontend" {
-  bucket = aws_s3_bucket.frontend.id
-
-  index_document {
-    suffix = "index.html"
-  }
-
-  error_document {
-    key = "error.html"
-  }
-}
 
 resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 # CloudFront Origin Access Control
@@ -588,15 +576,9 @@ resource "aws_cloudfront_distribution" "frontend" {
   default_root_object = "index.html"
 
   origin {
-    domain_name = aws_s3_bucket_website_configuration.frontend.website_endpoint
-    origin_id   = "S3-${var.project_name}"
-
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "http-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
-    }
+    domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
+    origin_id                = "S3-${var.project_name}"
+    origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
   }
 
   origin {

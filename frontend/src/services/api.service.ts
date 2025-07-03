@@ -14,8 +14,12 @@ export class ApiService {
   private clientId: string;
 
   constructor() {
+    // API URL is now injected during build time via CI/CD pipeline from Terraform outputs
+    // This follows best practices for production applications
     this.baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
     this.clientId = this.getOrCreateClientId();
+    
+    console.log('API URL:', this.baseUrl);
   }
 
   private getOrCreateClientId(): string {

@@ -19,6 +19,7 @@
     "start": "vite",
     "start:docker": "vite --host --port 3000",
     "build": "vite build",
+    "build:prod": "NODE_ENV=production vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test:unit": "vitest --testRegex \\.spec.test.tsx\\$",
