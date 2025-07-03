@@ -8,8 +8,11 @@ terraform {
   }
 
   backend "s3" {
-    # Configuration loaded from backend.hcl or GitHub Actions
-    # Run scripts/setup-terraform-backend.sh to create the backend
+    bucket         = "my-terraform-state-plasmics"
+    key            = "number-acidizer/terraform.tfstate" # Path to your state file within the bucket
+    region         = "eu-central-1"
+    dynamodb_table = "terraform-state-locking"
+    encrypt        = true
   }
 }
 
@@ -439,10 +442,7 @@ resource "aws_apigatewayv2_stage" "http" {
   auto_deploy = true
 
   # API Gateway throttling - reduced limits for free tier
-  default_route_settings {
-    throttle_rate_limit  = 100
-    throttle_burst_limit = 200
-  }
+  
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gateway.arn
@@ -715,6 +715,4 @@ output "s3_bucket_name" {
   value = aws_s3_bucket.frontend.id
 }
 
-output "cloudfront_distribution_id" {
-  value = aws_cloudfront_distribution.frontend.id
-}
+

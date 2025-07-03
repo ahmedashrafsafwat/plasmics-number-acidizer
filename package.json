@@ -3,17 +3,18 @@
   "version": "1.0.0",
   "description": "ACID-compliant distributed counter application",
   "private": true,
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
-  "scripts": {
+  "scriptse2e.test.ts": {
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "build:backend": "cd backend && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "build": "npm run build:backend && npm run build:frontend",
-    "test:backend": "cd backend && npm test",
+    "test:backend": "cd backend && npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:backend:unit": "cd backend && npm run test:unit",
+    "test:backend:integration": "cd backend && npm run test:integration",
+    "test:e2e": "cd backend && npm run test:e2e",
     "test:frontend": "cd frontend && npm test",
+    "test:frontend:unit": "cd frontend && npm run test:unit",
+    "test:frontend:integration": "cd frontend && npm run test:integration",
     "test": "npm run test:backend && npm run test:frontend",
     "lint:backend": "cd backend && npm run lint",
     "lint:frontend": "cd frontend && npm run lint",

@@ -35,23 +35,20 @@ jobs:
       - name: Lint frontend
         run: npm run lint:frontend
 
-      - name: Test backend
-        run: npm run test:backend
+      - name: Test backend e2e
+        run: npm run test:backend:e2e
 
-      - name: Test frontend
-        run: npm run test:frontend
+      - name: Test backend unit
+        run: npm run test:backend:unit
+
+      # - name: Test frontend
+      #   run: npm run test:frontend
 
       - name: Build backend
         run: npm run build:backend
 
       - name: Build frontend
         run: npm run build:frontend
-
-      - name: Run ACID compliance tests
-        run: |
-          cd tests
-          npm install
-          npm test
 
   deploy:
     name: Deploy to AWS

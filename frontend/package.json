@@ -21,6 +21,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
+    "test:unit": "vitest --testRegex \\.spec.test.tsx\\$",
+    "test:integration": "vitest --testRegex \\.int.test.tsx\\$",
+    "test:e2e": "vitest --testRegex \\.e2e.test.tsx\\$",
     "lint": "eslint src --ext .ts,.tsx"
   },
   "devDependencies": {
