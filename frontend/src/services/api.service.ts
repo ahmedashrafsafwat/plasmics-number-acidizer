@@ -18,14 +18,12 @@ export class ApiService {
     // This follows best practices for production applications
     this.baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
     this.clientId = this.getOrCreateClientId();
-    
-    console.log('API URL:', this.baseUrl);
   }
 
   private getOrCreateClientId(): string {
     const stored = sessionStorage.getItem('clientId');
     if (stored) return stored;
-    
+
     const newId = uuidv4();
     sessionStorage.setItem('clientId', newId);
     return newId;
@@ -35,12 +33,9 @@ export class ApiService {
     return this.clientId;
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const requestId = uuidv4();
-    
+
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
       headers: {
@@ -57,8 +52,7 @@ export class ApiService {
     }
 
     const text = await response.text();
-    console.log('API Response:', text);
-    
+
     try {
       return JSON.parse(text);
     } catch (e) {

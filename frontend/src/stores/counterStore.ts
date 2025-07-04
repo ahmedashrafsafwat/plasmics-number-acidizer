@@ -50,7 +50,6 @@ export const useCounterStore = create<CounterState>()(
 
       try {
         const result = await apiService.increment();
-        console.log('Increment result:', result);
         set({
           targetValue: result.value!,
           operationCount: get().operationCount + 1,
@@ -99,21 +98,19 @@ export const useCounterStore = create<CounterState>()(
 
     fetchValue: async () => {
       const { isAnimating } = get();
-      
+
       // Don't fetch if we're already animating
       if (isAnimating) {
-        console.log('Skipping fetch - animation in progress');
         return;
       }
-      
+
       set({ error: null });
       try {
         const result = await apiService.getValue();
-        console.log('Fetched value:', result);
-        
+
         // Always animate from current value to fetched value
         const currentValue = get().value;
-        
+
         if (result.value! !== currentValue) {
           // Always animate to the new value
           set({
@@ -152,29 +149,23 @@ wsService.onUpdate((data) => {
 
   // Only update if the change wasn't initiated by this client
   if (data.clientId !== apiService.getClientId()) {
-    console.log('Received update from another client:', data);
-    console.log('[WS] Incoming value:', data.value, 'Current targetValue:', state.targetValue);
     state.setTargetValue(data.value);
   }
 });
-
-let animationFrame: number | null = null;
 
 // Subscribe to targetValue changes to trigger animation
 useCounterStore.subscribe(
   (state) => state.targetValue,
   (targetValue) => {
-    const { value, setAnimating, setValue } = useCounterStore.getState();
+    const { value, setAnimating } = useCounterStore.getState();
     const delta = Math.abs(targetValue - value);
-
-    console.log('Target value changed:', targetValue, 'Current value:', value, 'Delta:', delta);
 
     // Trigger animation for changes greater than 1
     if (delta > 1) {
       setAnimating(true);
     }
 
-    const step = () => {
+    () => {
       const { value, targetValue } = useCounterStore.getState();
       if (value === targetValue) {
         useCounterStore.getState().setAnimating(false);
@@ -184,13 +175,6 @@ useCounterStore.subscribe(
       const direction = targetValue > value ? 1 : -1;
       useCounterStore.getState().setValue(value + direction);
     };
-    // else if (delta === 1) {
-    //   // Direct update for single increments
-    //   setValue(targetValue);
-    // } else if (delta === 0) {
-    //   // Make sure value is set even if delta is 0
-    //   setValue(targetValue);
-    // }
   }
 );
 

@@ -22,11 +22,8 @@ export const AnimatedNumber: React.FC = () => {
   useEffect(() => {
     const delta = Math.abs(targetValue - value);
     
-    console.log('Animating from', value, 'to', targetValue, 'Delta:', delta);
-    
     // Check if we're already animating to this target
     if (animationRef.current && lastTargetRef.current === targetValue) {
-      console.log('Already animating to this target, skipping');
       return;
     }
     
@@ -38,7 +35,6 @@ export const AnimatedNumber: React.FC = () => {
 
     // Cancel any ongoing animation only if the target changed
     if (animationRef.current) {
-      console.log('Stopping previous animation');
       animationRef.current.stop();
     }
 
@@ -52,8 +48,6 @@ export const AnimatedNumber: React.FC = () => {
     // Slower animation to see the numbers count up/down
     const duration = Math.min(Math.max(delta * 300, 800), 4000) / 1000; // 150ms per step, min 800ms, max 4s
 
-    console.log(`Starting animation: ${duration}s for ${delta} steps`);
-
     animationRef.current = animate(value, targetValue, {
       duration,
       ease: [0.25, 0.1, 0.25, 1], // Custom easing for smooth counting
@@ -61,7 +55,6 @@ export const AnimatedNumber: React.FC = () => {
         displayValue.set(latest);
       },
       onComplete: () => {
-        console.log('Animation complete');
         setValue(targetValue);
         setAnimating(false);
         animationRef.current = null;

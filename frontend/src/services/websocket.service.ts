@@ -23,8 +23,6 @@ export class WebSocketService {
     // WebSocket URL is now injected during build time via CI/CD pipeline from Terraform outputs
     // This follows best practices for production applications
     this.wsUrl = process.env.REACT_APP_WS_URL + stage || 'ws://localhost:3001';
-    console.log('WebSocket URL:', this.wsUrl);
-    console.log('Environment:', process.env.REACT_APP_WS_URL);
   }
 
   connect(): void {
@@ -36,7 +34,6 @@ export class WebSocketService {
       this.ws = new WebSocket(this.wsUrl);
 
       this.ws.onopen = () => {
-        console.log('WebSocket connected');
         if (this.reconnectTimeout) {
           clearTimeout(this.reconnectTimeout);
           this.reconnectTimeout = null;
@@ -55,8 +52,6 @@ export class WebSocketService {
             data = JSON.parse(event.data);
           }
 
-          console.log('WebSocket message:', data);
-
           // Notify all listeners
           this.listeners.forEach((listener) => listener(data));
         } catch (error) {
@@ -66,13 +61,10 @@ export class WebSocketService {
 
       this.ws.onerror = (error) => {
         console.error('WebSocket error event:', error);
-        console.error('WebSocket ready state:', this.ws?.readyState);
-        console.error('WebSocket URL:', this.wsUrl);
       };
 
       this.ws.onclose = (event) => {
         console.log('WebSocket disconnected');
-        console.log('Close code:', event.code);
         console.log('Close reason:', event.reason);
         console.log('Was clean close:', event.wasClean);
         this.scheduleReconnect();
