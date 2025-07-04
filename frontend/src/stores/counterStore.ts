@@ -165,7 +165,7 @@ useCounterStore.subscribe(
       setAnimating(true);
     }
 
-    () => {
+    const _step = () => {
       const { value, targetValue } = useCounterStore.getState();
       if (value === targetValue) {
         useCounterStore.getState().setAnimating(false);
