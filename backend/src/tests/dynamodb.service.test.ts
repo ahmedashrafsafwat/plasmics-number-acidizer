@@ -165,7 +165,6 @@ describe('DynamoDBService', () => {
 
     it('should handle concurrent updates correctly', async () => {
       const requestId1 = 'test-request-1';
-      const requestId2 = 'test-request-2';
 
       // First decrement attempt
       mockDocClient.send

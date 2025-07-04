@@ -43,7 +43,7 @@ export class WebSocketService {
       this.ws.onmessage = async (event) => {
         try {
           let data: any;
-          
+
           // Handle both Blob and string data
           if (event.data instanceof Blob) {
             const text = await event.data.text();
@@ -51,22 +51,27 @@ export class WebSocketService {
           } else {
             data = JSON.parse(event.data);
           }
-          
+
           console.log('WebSocket message:', data);
-          
+
           // Notify all listeners
-          this.listeners.forEach(listener => listener(data));
+          this.listeners.forEach((listener) => listener(data));
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
         }
       };
 
       this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error('WebSocket error event:', error);
+        console.error('WebSocket ready state:', this.ws?.readyState);
+        console.error('WebSocket URL:', this.wsUrl);
       };
 
-      this.ws.onclose = () => {
+      this.ws.onclose = (event) => {
         console.log('WebSocket disconnected');
+        console.log('Close code:', event.code);
+        console.log('Close reason:', event.reason);
+        console.log('Was clean close:', event.wasClean);
         this.scheduleReconnect();
       };
     } catch (error) {
@@ -100,7 +105,7 @@ export class WebSocketService {
 
   onUpdate(callback: (data: WebSocketMessage) => void): () => void {
     this.listeners.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.listeners.indexOf(callback);

@@ -155,6 +155,11 @@ jobs:
           cd frontend
           npm ci
 
+      - name: Clean Previous Build
+        run: |
+          cd frontend
+          rm -rf build dist .vite
+
       - name: Build Frontend with Production Environment
         env:
           REACT_APP_API_URL: ${{ steps.terraform.outputs.api_url }}
@@ -162,6 +167,10 @@ jobs:
           NODE_ENV: production
         run: |
           cd frontend
+          echo "Building frontend with environment variables:"
+          echo "REACT_APP_API_URL: $REACT_APP_API_URL"
+          echo "REACT_APP_WS_URL: $REACT_APP_WS_URL"
+          echo "NODE_ENV: $NODE_ENV"
           npm run build
 
       - name: Deploy Frontend to S3
