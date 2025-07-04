@@ -1,17 +1,22 @@
+import { createRequestLogger } from './utils/logger';
+
 // Main router handler
 export const handler = async (event: any, context: any, callback?: any): Promise<any> => {
-  console.log('🚀 Lambda invoked!');
-  console.log('📋 Event type check:', {
-    hasRequestContext: !!event.requestContext,
+  const requestLogger = createRequestLogger(
+    event.requestContext?.requestId || context.awsRequestId,
+    'main-router'
+  );
+
+  requestLogger.info({ 
+    eventType: event.requestContext?.routeKey ? 'websocket' : 'http',
     routeKey: event.requestContext?.routeKey,
     httpMethod: event.httpMethod,
-    path: event.path,
-    eventKeys: Object.keys(event)
-  });
+    path: event.path 
+  }, 'Lambda invoked');
   
   // Check if this is a WebSocket event
   if (event.requestContext && event.requestContext.routeKey) {
-    console.log('WebSocket event:', event.requestContext.routeKey);
+    requestLogger.info({ routeKey: event.requestContext.routeKey }, 'Processing WebSocket event');
 
     const { connectHandler, disconnectHandler, defaultHandler } = await import(
       './handlers/websocket'
@@ -30,7 +35,11 @@ export const handler = async (event: any, context: any, callback?: any): Promise
   }
 
   // HTTP API event
-  console.log('HTTP Request:', event.httpMethod, event.path);
+  requestLogger.info({ 
+    method: event.httpMethod, 
+    path: event.path,
+    headers: event.headers 
+  }, 'Processing HTTP request');
 
   // Route based on path
   if (event.path === '/increment' && event.httpMethod === 'POST') {

@@ -3,12 +3,24 @@ import { DynamoDBService } from '../services/dynamodb.service';
 import { WebSocketService } from '../services/websocket.service';
 import { validateRequest, createResponse } from '../utils/validation';
 import { ApiError } from '../utils/errors';
+import { createRequestLogger } from '../utils/logger';
 
 const dynamoService = new DynamoDBService();
 const wsService = new WebSocketService();
 
+/**
+ * In real life application I would highly suggest to have a seprate controller and service layer, maybe even a repository layer for data access.
+ * This would help to keep the code clean and maintainable.
+ * However, for the sake of simplicity and time constraints, I am keeping everything in one file.
+ */
+// Handler for incrementing the counter
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.log('Increment request:', JSON.stringify(event.headers));
+  const logger = createRequestLogger(
+    event.requestContext?.requestId || 'unknown',
+    'increment-handler'
+  );
+
+  logger.info({ headers: event.headers }, 'Increment request');
 
   try {
     // Validate request
@@ -17,7 +29,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // Perform increment operation
     const newValue = await dynamoService.incrementCounter(requestId);
 
-    console.log('New counter value:', newValue);
+    logger.info({ value: newValue }, 'Counter incremented successfully');
 
     // Broadcast update via WebSocket
     await wsService.broadcastUpdate({
@@ -32,7 +44,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       requestId,
     });
   } catch (error: any) {
-    console.error('Increment error:', error);
+    logger.error({ error }, 'Increment error');
 
     if (error instanceof ApiError) {
       return createResponse(error.statusCode, {

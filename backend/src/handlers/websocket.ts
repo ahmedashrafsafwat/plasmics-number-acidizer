@@ -1,6 +1,7 @@
 import { APIGatewayProxyWebsocketHandlerV2 } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { createRequestLogger } from '../utils/logger';
 
 // Create DynamoDB client with proper configuration for local development
 const createDynamoDBClient = () => {
@@ -26,8 +27,9 @@ const connectionsTable = process.env.CONNECTIONS_TABLE_NAME || 'WebSocketConnect
 
 export const connectHandler: APIGatewayProxyWebsocketHandlerV2 = async (event) => {
   const connectionId = event.requestContext.connectionId;
+  const logger = createRequestLogger(event.requestContext.requestId, 'websocket-connect');
 
-  console.log(`WebSocket connect: ${connectionId}`);
+  logger.info({ connectionId }, 'WebSocket connection initiated');
 
   try {
     await docClient.send(
@@ -41,17 +43,19 @@ export const connectHandler: APIGatewayProxyWebsocketHandlerV2 = async (event) =
       })
     );
 
+    logger.info({ connectionId }, 'WebSocket connection stored successfully');
     return { statusCode: 200, body: 'Connected' };
   } catch (error) {
-    console.error('Connect error:', error);
+    logger.error({ connectionId, error }, 'Failed to store WebSocket connection');
     return { statusCode: 500, body: 'Failed to connect' };
   }
 };
 
 export const disconnectHandler: APIGatewayProxyWebsocketHandlerV2 = async (event) => {
   const connectionId = event.requestContext.connectionId;
+  const logger = createRequestLogger(event.requestContext.requestId, 'websocket-disconnect');
 
-  console.log(`WebSocket disconnect: ${connectionId}`);
+  logger.info({ connectionId }, 'WebSocket disconnection initiated');
 
   try {
     await docClient.send(
@@ -61,14 +65,21 @@ export const disconnectHandler: APIGatewayProxyWebsocketHandlerV2 = async (event
       })
     );
 
+    logger.info({ connectionId }, 'WebSocket connection removed successfully');
     return { statusCode: 200, body: 'Disconnected' };
   } catch (error) {
-    console.error('Disconnect error:', error);
+    logger.error({ connectionId, error }, 'Failed to remove WebSocket connection');
     return { statusCode: 500, body: 'Failed to disconnect' };
   }
 };
 
 export const defaultHandler: APIGatewayProxyWebsocketHandlerV2 = async (event) => {
-  console.log('WebSocket default message:', event.body);
+  const logger = createRequestLogger(event.requestContext.requestId, 'websocket-default');
+  
+  logger.info({ 
+    connectionId: event.requestContext.connectionId,
+    messageBody: event.body 
+  }, 'WebSocket message received');
+  
   return { statusCode: 200, body: 'Message received' };
 };

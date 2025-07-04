@@ -4,6 +4,7 @@ import {
 } from '@aws-sdk/client-apigatewaymanagementapi';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, ScanCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { logger, createChildLogger } from '../utils/logger';
 
 export interface WebSocketMessage {
   value: number;
@@ -24,14 +25,12 @@ export class WebSocketService {
     if (isLocal && !endpoint) {
       const port = process.env.PORT || 3001;
       endpoint = `http://localhost:${port}`;
-      console.log(`Local environment detected, using WebSocket endpoint: ${endpoint}`);
+      logger.info({ endpoint }, 'Local environment detected, using WebSocket endpoint');
     }
 
     if (!isLocal) {
-      console.log(
-        'Production environment detected, using WebSocket endpoint from environment variable'
-      );
       endpoint = process.env.WEBSOCKET_ENDPOINT + stage;
+      logger.info({ endpoint }, 'Production environment detected, using WebSocket endpoint');
     }
 
     if (endpoint) {
@@ -64,8 +63,10 @@ export class WebSocketService {
   }
 
   async broadcastUpdate(message: WebSocketMessage): Promise<void> {
+    const serviceLogger = createChildLogger({ service: 'websocket', method: 'broadcastUpdate' });
+    
     if (!this.apiClient) {
-      console.log('WebSocket endpoint not configured, skipping broadcast');
+      serviceLogger.warn('WebSocket endpoint not configured, skipping broadcast');
       return;
     }
 
@@ -78,7 +79,7 @@ export class WebSocketService {
       );
 
       if (!response.Items || response.Items.length === 0) {
-        console.log('No active WebSocket connections');
+        serviceLogger.info('No active WebSocket connections');
         return;
       }
 
@@ -102,7 +103,7 @@ export class WebSocketService {
         } catch (error: any) {
           if (error.statusCode === 410) {
             // Connection no longer exists, remove it
-            console.log(`Removing stale connection: ${item.connectionId}`);
+            serviceLogger.info({ connectionId: item.connectionId }, 'Removing stale connection');
             await this.docClient.send(
               new DeleteCommand({
                 TableName: this.connectionsTable,
@@ -110,15 +111,15 @@ export class WebSocketService {
               })
             );
           } else {
-            console.error(`Error sending to connection ${item.connectionId}:`, error);
+            serviceLogger.error({ connectionId: item.connectionId, error }, 'Error sending to connection');
           }
         }
       });
 
       await Promise.all(sendPromises);
-      console.log(`Broadcast sent to ${response.Items.length} connections`);
+      serviceLogger.info({ connectionCount: response.Items.length, message }, 'Broadcast sent to connections');
     } catch (error) {
-      console.error('Error broadcasting update:', error);
+      serviceLogger.error({ error }, 'Error broadcasting update');
     }
   }
 }

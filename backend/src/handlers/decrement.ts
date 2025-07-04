@@ -3,14 +3,19 @@ import { DynamoDBService } from '../services/dynamodb.service';
 import { WebSocketService } from '../services/websocket.service';
 import { validateRequest, createResponse } from '../utils/validation';
 import { ApiError } from '../utils/errors';
+import { createRequestLogger } from '../utils/logger';
 
 const dynamoService = new DynamoDBService();
 const wsService = new WebSocketService();
 
-export const handler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
-  console.log('Decrement request:', JSON.stringify(event.headers));
+/// Handler for decrementing the counter
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  const logger = createRequestLogger(
+    event.requestContext?.requestId || 'unknown',
+    'decrement-handler'
+  );
+
+  logger.info({ headers: event.headers }, 'Decrement request');
 
   try {
     // Validate request
@@ -32,7 +37,7 @@ export const handler = async (
       requestId,
     });
   } catch (error: any) {
-    console.error('Decrement error:', error);
+    logger.error({ error }, 'Decrement error');
 
     if (error instanceof ApiError) {
       return createResponse(error.statusCode, {

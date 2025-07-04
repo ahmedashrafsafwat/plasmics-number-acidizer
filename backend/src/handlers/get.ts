@@ -1,11 +1,17 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBService } from '../services/dynamodb.service';
 import { createResponse } from '../utils/validation';
+import { createRequestLogger } from '../utils/logger';
 
 const dynamoService = new DynamoDBService();
 
-export const handler = async (_: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.log('Get value request');
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  const logger = createRequestLogger(
+    event.requestContext?.requestId || 'unknown',
+    'get-handler'
+  );
+  
+  logger.info('Get value request');
 
   try {
     // Get current counter value
@@ -17,7 +23,7 @@ export const handler = async (_: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       version: counter.version,
     });
   } catch (error: any) {
-    console.error('Get value error:', error);
+    logger.error({ error }, 'Get value error');
 
     return createResponse(500, {
       success: false,

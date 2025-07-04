@@ -6,6 +6,7 @@ import {
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
+import { createChildLogger } from '../utils/logger';
 
 const MAX_RETRIES = 5;
 const MAX_VALUE = 1_000_000_000;
@@ -43,9 +44,13 @@ export class DynamoDBService {
 
     this.tableName = process.env.COUNTER_TABLE_NAME || 'NumberAcidizer';
     this.auditTableName = process.env.AUDIT_TABLE_NAME || `${this.tableName}-audit`;
-    console.log(
-      `DynamoDBService initialized for tables: ${this.tableName}, ${this.auditTableName}`
-    );
+    
+    const logger = createChildLogger({ service: 'dynamodb' });
+    logger.info({
+      counterTable: this.tableName,
+      auditTable: this.auditTableName,
+      isLocal
+    }, 'DynamoDBService initialized');
   }
 
   async getCounter(): Promise<{ value: number; version: number }> {
@@ -83,7 +88,8 @@ export class DynamoDBService {
     while (retries < MAX_RETRIES) {
       try {
         const current = await this.getCounter();
-        console.log('Got current counter:', current);
+        const logger = createChildLogger({ service: 'dynamodb', method: 'updateCounter' });
+        logger.debug({ current, delta, requestId }, 'Retrieved current counter for update');
         const newValue = current.value + delta;
 
         // Validate bounds

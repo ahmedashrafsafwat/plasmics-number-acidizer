@@ -257,8 +257,6 @@ class ACIDTester {
 
 // Run tests
 async function runAllTests() {
-  console.log('🧪 Running ACID compliance tests...\n');
-
   const tester = new ACIDTester();
   const tests = [
     { name: 'Atomicity', test: () => tester.testAtomicity() },
@@ -275,19 +273,19 @@ async function runAllTests() {
     const result = await test();
 
     if (result.passed) {
-      console.log(`✅ ${result.message} (${result.duration}ms)`);
+      console.log(`${result.message} (${result.duration}ms)`);
     } else {
-      console.log(`❌ ${result.message} (${result.duration}ms)`);
+      console.log(`${result.message} (${result.duration}ms)`);
       allPassed = false;
     }
-    console.log();
+    console.log(); // empty line for readability
   }
 
   if (allPassed) {
     console.log('🎉 All ACID tests passed!');
     process.exit(0);
   } else {
-    console.log('💥 Some tests failed!');
+    console.log('Some tests failed!');
     process.exit(1);
   }
 }

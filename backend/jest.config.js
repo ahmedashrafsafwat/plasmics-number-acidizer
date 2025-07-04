@@ -23,5 +23,5 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
   setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
-  testTimeout: 30000, // 30 seconds for E2E tests
+  testTimeout: 30000,
 };

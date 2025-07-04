@@ -140,7 +140,6 @@ const invokeWebSocketHandler = async (
   connectionId: string,
   body?: string
 ) => {
-  console.log(`Invoking WebSocket handler for ${routeKey} on connection ${connectionId}`);
   const now = new Date();
   const eventType =
     routeKey === '$connect' ? 'CONNECT' : routeKey === '$disconnect' ? 'DISCONNECT' : 'MESSAGE';
@@ -148,7 +147,7 @@ const invokeWebSocketHandler = async (
 
   const event: APIGatewayProxyWebsocketEventV2 = {
     isBase64Encoded: false,
-    body: body, // This is now correctly typed as string | undefined
+    body: body,
     requestContext: {
       routeKey,
       connectionId,
@@ -201,6 +200,10 @@ wss.on('connection', (ws: WebSocket, _: http.IncomingMessage) => {
   });
 });
 
+// In real life I would move the mocks away from the main app file,
+// but for local development simplicity, we keep them here.
+
+// --- Mock API Gateway Management API for WebSocket Broadcast ---
 // Mock for ApiGatewayManagementApiClient's PostToConnectionCommand.
 // The AWS SDK will POST to `/@connections/{connectionId}`.
 app.post('/@connections/:connectionId', (req: Request, res: Response) => {
@@ -238,11 +241,8 @@ async function initializeTable(
 ) {
   try {
     await client.send(new DescribeTableCommand({ TableName }));
-    console.log(`Table ${TableName} already exists`);
   } catch (err: any) {
     if (err.name === 'ResourceNotFoundException') {
-      console.log(`Creating table ${TableName}...`);
-
       const attributeDefinitions = [{ AttributeName: hashKey, AttributeType: 'S' as const }];
 
       if (gsiKey) {
@@ -274,7 +274,6 @@ async function initializeTable(
       }
 
       await client.send(new CreateTableCommand(params));
-      console.log(`Table ${TableName} created.`);
     } else {
       throw err;
     }
@@ -283,9 +282,6 @@ async function initializeTable(
 
 // Start server
 server.listen(port, async () => {
-  console.log(`Local development server running on port ${port}`);
-  console.log(`Local WebSocket server running on ws://localhost:${port}`);
-
   // Initialize DynamoDB tables
   const client = new DynamoDBClient({
     endpoint: 'http://dynamodb-local:8000',
@@ -306,6 +302,7 @@ server.listen(port, async () => {
   await initializeTable(client, TableNames.NumberAcidizer, 'id');
   await initializeTable(client, TableNames.Audit, 'id', 'requestId'); // Add GSI for requestId
   await initializeTable(client, TableNames.WebSocketConnections, 'connectionId');
+  console.log('✅ Local DynamoDB tables initialized');
 });
 
 async function waitForDynamoDBReady(client: DynamoDBClient, retries = 10, delayMs = 1000) {
@@ -315,7 +312,6 @@ async function waitForDynamoDBReady(client: DynamoDBClient, retries = 10, delayM
       console.log('✅ DynamoDB is ready');
       return;
     } catch (e: any) {
-      console.log(`⏳ Waiting for DynamoDB... (${i + 1}/${retries})`, e.message || e);
       await new Promise((res) => setTimeout(res, delayMs));
     }
   }
