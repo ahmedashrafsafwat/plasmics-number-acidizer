@@ -1,14 +1,36 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-
-// Re-export all handlers
-export { handler as incrementHandler } from './handlers/increment';
-export { handler as decrementHandler } from './handlers/decrement';
-export { handler as getHandler } from './handlers/get';
-export { connectHandler, disconnectHandler, defaultHandler } from './handlers/websocket';
-
 // Main router handler
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.log('Request:', event.httpMethod, event.path);
+export const handler = async (event: any, context: any, callback?: any): Promise<any> => {
+  console.log('🚀 Lambda invoked!');
+  console.log('📋 Event type check:', {
+    hasRequestContext: !!event.requestContext,
+    routeKey: event.requestContext?.routeKey,
+    httpMethod: event.httpMethod,
+    path: event.path,
+    eventKeys: Object.keys(event)
+  });
+  
+  // Check if this is a WebSocket event
+  if (event.requestContext && event.requestContext.routeKey) {
+    console.log('WebSocket event:', event.requestContext.routeKey);
+
+    const { connectHandler, disconnectHandler, defaultHandler } = await import(
+      './handlers/websocket'
+    );
+
+    switch (event.requestContext.routeKey) {
+      case '$connect':
+        return connectHandler(event, context, callback);
+      case '$disconnect':
+        return disconnectHandler(event, context, callback);
+      case '$default':
+        return defaultHandler(event, context, callback);
+      default:
+        return { statusCode: 404, body: 'Route not found' };
+    }
+  }
+
+  // HTTP API event
+  console.log('HTTP Request:', event.httpMethod, event.path);
 
   // Route based on path
   if (event.path === '/increment' && event.httpMethod === 'POST') {
@@ -47,3 +69,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }),
   };
 };
+
+export { handler as incrementHandler } from './handlers/increment';
+export { handler as decrementHandler } from './handlers/decrement';
+export { handler as getHandler } from './handlers/get';
+export { connectHandler, disconnectHandler, defaultHandler } from './handlers/websocket';

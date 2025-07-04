@@ -184,14 +184,21 @@ jobs:
             --distribution-id ${{ steps.terraform.outputs.cloudfront_id }} \
             --paths "/*"
 
-      - name: Update Lambda Function
+      - name: Update Lambda Functions
         run: |
+          # Update main API Lambda function
           aws lambda update-function-code \
             --function-name number-acidizer-api-prod \
             --image-uri ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
             
-          aws lambda wait function-updated \
-            --function-name number-acidizer-api-prod
+          # Update stream handler Lambda function (for WebSocket broadcasts)
+          aws lambda update-function-code \
+            --function-name number-acidizer-stream-handler-prod \
+            --image-uri ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            
+          # Wait for both functions to be updated
+          aws lambda wait function-updated --function-name number-acidizer-api-prod
+          aws lambda wait function-updated --function-name number-acidizer-stream-handler-prod
 
       - name: Health Check
         run: |

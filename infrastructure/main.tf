@@ -662,6 +662,8 @@ resource "aws_lambda_function" "stream_handler" {
     variables = {
       WEBSOCKET_API_ID       = aws_apigatewayv2_api.websocket.id
       CONNECTIONS_TABLE_NAME = aws_dynamodb_table.websocket_connections.name
+      ENVIRONMENT            = var.environment
+      WEBSOCKET_ENDPOINT     = replace(aws_apigatewayv2_api.websocket.api_endpoint, "wss://", "https://")
     }
   }
 

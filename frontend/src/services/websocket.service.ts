@@ -8,6 +8,9 @@ export interface WebSocketMessage {
   timestamp: string;
 }
 
+// Represents the websocket stage, we need that in production
+const stage = '/prod';
+
 export class WebSocketService {
   private ws: WebSocket | null = null;
   private reconnectTimeout: NodeJS.Timeout | null = null;
@@ -19,7 +22,7 @@ export class WebSocketService {
     this.apiService = new ApiService();
     // WebSocket URL is now injected during build time via CI/CD pipeline from Terraform outputs
     // This follows best practices for production applications
-    this.wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:3001';
+    this.wsUrl = process.env.REACT_APP_WS_URL + stage || 'ws://localhost:3001';
     console.log('WebSocket URL:', this.wsUrl);
     console.log('Environment:', process.env.REACT_APP_WS_URL);
   }

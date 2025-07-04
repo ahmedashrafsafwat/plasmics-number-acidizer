@@ -11,6 +11,7 @@ export interface WebSocketMessage {
   clientId?: string;
 }
 
+const stage = '/prod'; // Default to /prod if not set
 export class WebSocketService {
   private apiClient?: ApiGatewayManagementApiClient;
   private docClient: DynamoDBDocumentClient;
@@ -24,6 +25,13 @@ export class WebSocketService {
       const port = process.env.PORT || 3001;
       endpoint = `http://localhost:${port}`;
       console.log(`Local environment detected, using WebSocket endpoint: ${endpoint}`);
+    }
+
+    if (!isLocal) {
+      console.log(
+        'Production environment detected, using WebSocket endpoint from environment variable'
+      );
+      endpoint = process.env.WEBSOCKET_ENDPOINT + stage;
     }
 
     if (endpoint) {
