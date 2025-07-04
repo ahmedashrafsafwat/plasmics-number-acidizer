@@ -204,7 +204,7 @@ jobs:
         run: |
           API_URL="${{ steps.terraform.outputs.api_url }}"
           for i in {1..10}; do
-            if curl -f "$API_URL/health"; then
+            if curl -f "$API_URL/value"; then
               echo "API is healthy"
               exit 0
             fi

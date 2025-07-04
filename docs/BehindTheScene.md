@@ -4,38 +4,34 @@
 
 ### API Gateway
 
-[!image](./screenshots/APIGateway.png)
+![APIGateway](./screenshots/APIGateway.png)
 
-[!image](./screenshots/CloudWatch.png)
+![CloudWatch](./screenshots/CloudWatch.png)
 
 ### Lambda
 
-[!image](./screenshots/LambdaFunctions.png)
+![LambdaFunctions](./screenshots/LambdaFunctions.png)
 
-[!image](./screenshots/LambdaFunction.png)
+![LambdaFunction](./screenshots/LambdaFunction.png)
 
 ### S3
 
-[!image](./screenshots/S3Bucket.png)
-
-### UCR
-
-[!image](./screenshots/ECR.png)
+![S3Bucket](./screenshots/S3Bucket.png)
 
 ### IAM
 
-[!image](./screenshots/rules.png)
+![rules](./screenshots/rules.png)
 
 ## Github
 
 ### Build-And-Test
 
-[!image](./screenshots/rules.png)
+![BuildAndTest](./screenshots/BuildAndTest.png)
 
 ### Deploy-To-AWS
 
-[!image](./screenshots/DeployToAws.png)
+![DeployToAws](./screenshots/DeployToAws.png)
 
 ### Github Secrets
 
-[!image](./screenshots/GithubSecrets.png)
+![GithubSecrets](./screenshots/GithubSecrets.png)
