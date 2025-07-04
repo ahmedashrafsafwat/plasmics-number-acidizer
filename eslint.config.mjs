@@ -15,31 +15,25 @@ export default [
             '@typescript-eslint': tseslint,
         },
         rules: {
-            // Fixed TypeScript rules
             '@typescript-eslint/no-unused-vars': ['warn', {
                 argsIgnorePattern: '^_',
                 varsIgnorePattern: '^_'
             }],
             '@typescript-eslint/no-explicit-any': 'warn',
             '@typescript-eslint/no-var-requires': 'warn',
-
-            // Properly configure no-unused-expressions if needed
             '@typescript-eslint/no-unused-expressions': ['error', {
                 allowShortCircuit: true,
                 allowTernary: true,
                 allowTaggedTemplates: true
             }],
-
-            // Turn off conflicting base ESLint rules
             'no-unused-vars': 'off',
             'no-undef': 'off',
-            'no-unused-expressions': 'off', // Use TypeScript version instead
+            'no-unused-expressions': 'off',
         },
     },
     {
         files: ['**/*.{js,mjs,cjs}'],
         rules: {
-            // JavaScript-only rules
         },
     },
     {

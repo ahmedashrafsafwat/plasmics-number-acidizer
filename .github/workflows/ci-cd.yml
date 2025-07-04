@@ -167,7 +167,7 @@ jobs:
           NODE_ENV: production
         run: |
           cd frontend
-          echo "Building frontend with environment variables:"
+          echo "Just for debugging: Building frontend with environment variables:"
           echo "REACT_APP_API_URL: $REACT_APP_API_URL"
           echo "REACT_APP_WS_URL: $REACT_APP_WS_URL"
           echo "NODE_ENV: $NODE_ENV"
@@ -204,7 +204,7 @@ jobs:
         run: |
           API_URL="${{ steps.terraform.outputs.api_url }}"
           for i in {1..10}; do
-            if curl -f "$API_URL/value"; then
+            if curl -f "$API_URL/health"; then
               echo "API is healthy"
               exit 0
             fi
