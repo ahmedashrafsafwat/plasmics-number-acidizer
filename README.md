@@ -214,7 +214,7 @@ The project includes comprehensive GitHub Actions workflows:
 
 - `.github/workflows/ci-cd.yml` - Main deployment pipeline
 
-## ⏱️ Development Timeline
+## Development Timeline
 
 **Total Development Time: 5 hours over 4 days**
 
@@ -224,9 +224,9 @@ The project includes comprehensive GitHub Actions workflows:
 | **Backend**                | 1 hour     | Day 2   | Node.js Lambda functions, DynamoDB service, WebSocket handlers, structured logging         |
 | **Infrastructure & CI/CD** | 2 hours    | Day 3-4 | Terraform AWS resources, GitHub Actions workflows, OIDC setup, deployment pipeline         |
 
-_Note: Development was spread across 4 days with breaks between sessions, allowing for iterative improvements and debugging._
+\_Note: Development was spread across 4 days with breaks between sessions as I didn't have enought time to set for straight 5 hours 😔
 
-## 🔐 IAM Security Architecture
+## IAM Security Architecture
 
 The project implements a comprehensive IAM security model following the principle of least privilege:
 
@@ -340,7 +340,7 @@ resource "aws_iam_role" "lambda" {
 #### Defense in Depth
 
 - **Network Level**: VPC endpoints (if needed)
-- **API Level**: CORS, rate limiting, request validation
+- **API Level**: CORS, rate limiting (done within frontend currently), basic request validation
 - **Application Level**: Input sanitization, structured logging
 - **Data Level**: Encryption at rest and in transit
 
@@ -390,21 +390,21 @@ resource "aws_iam_role" "lambda" {
 | **ECR**         | AES-256 image encryption         | Repository policies     | Vulnerability scanning |
 | **API Gateway** | TLS 1.2+ enforced                | Throttling + CORS       | CloudWatch logs        |
 
-## 🧠 Design Decisions & Thought Process
+## Design Decisions & Thought Process
 
 ### Why Serverless Architecture?
 
 - **Scalability**: Automatic scaling from 0 to thousands of requests
-- **Cost Efficiency**: Pay only for what you use
+- **Cost Efficiency**: Pay only for what you use (Awesome for the free tier and the scope of this task)
 - **Maintenance**: No server management overhead
-- **Availability**: Built-in high availability across multiple AZs
+- **Availability**: Built-in high availability
 
 ### Why DynamoDB with Transactions?
 
 - **ACID Compliance**: DynamoDB transactions provide strong consistency
 - **Performance**: Single-digit millisecond latency
 - **Scalability**: Handles massive concurrent loads
-- **Managed Service**: No database administration needed
+- And because I had too tbh, other than that I would have used a normal SQL database like postgres, as I don't have much experience with DynamoDB
 
 ### Why Optimistic Locking?
 
@@ -418,54 +418,35 @@ resource "aws_iam_role" "lambda" {
 - **Real-time**: Lower latency for counter updates
 - **Standard**: Better browser support and tooling
 
-### Why Zustand over Redux?
+### Why Separate package.json Instead of Workspaces?
 
-- **Simplicity**: Less boilerplate, easier to understand
-- **Performance**: Built-in optimizations, no unnecessary re-renders
-- **Size**: Smaller bundle size (~1KB vs ~15KB for Redux)
-- **TypeScript**: Excellent TypeScript support out of the box
+Initially, I planned to use npm/yarn workspaces for managing the monorepo structure, but this approach caused significant issues with local development:
 
-### Why Tailwind CSS?
+- **Docker Compose Conflicts**
+- **Path Resolution Problems**
+- **Build Complexity**
+- **Time Constraints**
 
-- **Utility-First**: Rapid development with consistent design
-- **Performance**: Only includes used CSS classes
-- **Responsive**: Built-in responsive design utilities
-- **Maintenance**: No CSS file maintenance overhead
+**Decision**: Switched to separate `package.json` files for frontend and backend with a root-level package.json for convenience scripts. This approach provided:
 
-## 📊 API Documentation
+- **Simpler Setup**
+- **Docker Compatibility**
+- **Development Velocity**
+- **Clear Boundaries**
+
+While workspaces would be ideal for a larger team project with shared utilities, the separate package approach was more pragmatic for this time-constrained demonstration.
+
+## API Documentation
 
 ### REST Endpoints
 
-```bash
-# Get current counter value
-GET /value
-Response: { "success": true, "value": 42, "version": 123 }
-
-# Increment counter
-POST /increment
-Headers: X-Request-ID: <uuid>, X-Client-ID: <uuid>
-Response: { "success": true, "value": 43, "requestId": "<uuid>" }
-
-# Decrement counter
-POST /decrement
-Headers: X-Request-ID: <uuid>, X-Client-ID: <uuid>
-Response: { "success": true, "value": 41, "requestId": "<uuid>" }
-```
+- You can read about it more [here](./docs/API_DOCUMENTATION.md)
 
 ### WebSocket Events
 
-```javascript
-// Connect to WebSocket
-const ws = new WebSocket('wss://your-websocket-url/prod');
+- You can read about it more [here](./docs/API_DOCUMENTATION.md)
 
-// Receive counter updates
-ws.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  // { type: 'counter-update', value: 42, operation: 'increment', timestamp: '...' }
-};
-```
-
-## 🧪 Testing Strategy
+## Testing Strategy
 
 ### Testing Philosophy
 
@@ -540,7 +521,7 @@ The backend includes `wait-for-it.sh` to ensure DynamoDB is ready before startin
 
 ### Code Generation & AI Assistance
 
-This project leveraged AI assistance for:
+This project leveraged AI assistance (ChatGPT and ClaudeCode) for:
 
 - **Test Case Generation** - Comprehensive test scenarios
 - **Workflow Configuration** - GitHub Actions pipeline setup
@@ -557,7 +538,7 @@ While the git history could be cleaner with conventional commits and atomic chan
 - **Feature Branches** with clean merge history
 - **Linear History** through rebase workflows
 
-## 📈 Performance & Monitoring
+## Performance & Monitoring
 
 ### Key Metrics
 
@@ -598,7 +579,7 @@ While the git history could be cleaner with conventional commits and atomic chan
 - **Husky** - Git hooks for quality gates
 - **Structured Logging** - Centralized log management
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
